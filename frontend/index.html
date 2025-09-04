@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Love Story 💖</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', cursive;
+      background: linear-gradient(to right, #ff9a9e, #fad0c4);
+      color: #fff;
+      text-align: center;
+    }
+    .section { display: none; padding: 0; overflow-y: auto; max-height: 100vh; }
+    .active { display: block; }
+    input, textarea, button {
+      padding: 10px; margin: 10px; width: 80%;
+      border-radius: 10px; border: none; font-size: 16px;
+    }
+    button { background-color: #ff6f91; color: white; cursor: pointer; }
+    button:hover { background-color: #ff4e7a; }
+    .caption { color: #fff; margin-top: 10px; }
+    .slideshow-img { width: 300px; height: auto; border-radius: 10px; cursor: pointer; transition: transform 0.2s; }
+    .slideshow-img:hover { transform: scale(1.05); }
+    .modal { display: none; position: fixed; z-index: 1000; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.9); text-align: center; }
+    .modal-content { margin: auto; display: block; max-width: 90%; max-height: 90%; }
+    .close { position: absolute; top: 20px; right: 40px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
+    #captionText { margin-top: 15px; color: #ddd; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+  <!-- Login Section -->
+  <div id="login" class="section active">
+    <h1>Welcome to Our Love Story 💘</h1>
+    <input type="text" id="username" placeholder="Login ID"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <p id="loginError" style="color: yellow;"></p>
+  </div>
+
+  <!-- Shayari -->
+  <div id="shayari" class="section">
+    <h2>"Tum aaye zindagi mein bahaar ban ke,<br>
+    Tere saath har pal laga ek pyaar ban ke... 💖"</h2>
+    <button onclick="goBack()">⬅ Back</button>
+    <button onclick="showSection('memories')">Next ➡</button>
+  </div>
+
+  <!-- Memories Slideshow -->
+  <div id="memories" class="section">
+    <h2>Hamari Yaadein 📸</h2>
+    <div>
+      <img id="slideImage" src="" alt="Memory" class="slideshow-img" onclick="openFullscreen(this)">
+      <p id="caption" class="caption"></p>
+    </div>
+    <button onclick="prevImage()">⬅ Previous</button>
+    <button onclick="nextImage()">Next ➡</button>
+    <button onclick="goBack()">Back</button>
+  </div>
+
+  <!-- Fullscreen Modal -->
+  <div id="imageModal" class="modal" onclick="closeFullscreen()">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="fullImage">
+    <div id="captionText"></div>
+  </div>
+
+  <!-- Future Dates Slideshow -->
+  <div id="future" class="section">
+    <h2>Vo Haseen Pal Jo Apke Saath Jiya 💍</h2>
+    <div style="margin-top:20px;">
+      <img id="futureSlide" src="" alt="Future Memory" class="slideshow-img" onclick="openFullscreen(this)">
+      <p id="futureCaption" class="caption"></p>
+    </div>
+    <button onclick="prevFuture()">⬅ Back</button>
+    <button onclick="nextFuture()">Next ➡</button>
+  </div>
+
+  <!-- Review -->
+  <div id="review" class="section">
+    <h2>Apko mera yeh surprise kaisa laga? 💬</h2>
+    <textarea id="reviewText" rows="5" placeholder="Yahan likho jo dil kahe..."></textarea><br>
+    <button onclick="submitReview()">Submit</button>
+  </div>
+
+  <!-- Greeting -->
+  <div id="greeting" class="section">
+    <h2>Thank you Jaan! 🌹<br><br>
+    Tumhara har lafz mere liye ek daulat hai...<br>
+    Tum hi meri zindagi ho! 💘</h2>
+    <button onclick="showSection('login')">Back to Login</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin" class="section">
+    <h2>❤️ Tumhara Review ❤️</h2>
+    <div id="adminReview"></div>
+    <br>
+    <button onclick="showSection('login')">Logout</button>
+  </div>
+
+  <!-- Script -->
+  <script>
+    const API_URL = "/api/reviews";
+    let historyStack = [];
+
+    function showSection(id) {
+      const current = document.querySelector('.section.active');
+      if (current) {
+        historyStack.push(current.id);
+        current.classList.remove('active');
+      }
+      document.getElementById(id).classList.add('active');
+      if (id === 'admin') loadReviews();
+    }
+
+    function goBack() {
+      if (historyStack.length > 0) {
+        const last = historyStack.pop();
+        document.querySelector('.section.active').classList.remove('active');
+        document.getElementById(last).classList.add('active');
+      }
+    }
+
+    // 🔑 Login System
+    function login() {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+
+      if (u === "devyani76176" && p === "harman") {
+        showSection('shayari'); // Wife ke liye Love Story
+      } else if (u === "harman76176" && p === "harman") {
+        showSection('admin');   // Tumhare liye Admin Panel
+      } else {
+        document.getElementById("loginError").innerText = "Galat ID ya password 💔";
+      }
+    }
+
+    // Memories Slideshow
+    const images = [
+      {src: "images/pic1.jpg", caption: "😍 <b><i>Jab Mene Tumko Propose Kiya</i></b> 💍"},
+      {src: "images/pic2.jpg", caption: "✨ <b><i>Meri Life Ka Sabse Khass Pal</i></b> 🌸"},
+      {src: "images/pic3.jpg", caption: "☕ <b><i>Woh Coffee Date</i></b> 💖"},
+      {src: "images/pic4.jpg", caption: "🚶‍♀️ <b><i>Wo Hamari Lambi Baten</i></b> 🌙"},
+      {src: "images/pic5.jpg", caption: "🤗 <b><i>Tumhari Bachpan Ki Yaad</i></b> 💕"}
+    ];
+    let currentIndex = 0;
+    function showImage(index) {
+      document.getElementById("slideImage").src = images[index].src;
+      document.getElementById("caption").innerHTML = images[index].caption;
+    }
+    function nextImage() { if(currentIndex<images.length-1){ currentIndex++; showImage(currentIndex);} else showSection("future"); }
+    function prevImage() { if(currentIndex>0){ currentIndex--; showImage(currentIndex);} else showSection("shayari"); }
+
+    // Future Slideshow
+    const futureImages = [
+      {src: "images/date1.jpg", caption: "😍 Pehli Nazar Ki Mohobat Vali Tasveer 💕"},
+      {src: "images/date2.jpg", caption: "✨ Sukoon Bhare Behtreen Pal 🌸"},
+      {src: "images/date3.jpg", caption: "❄️ Tumhari Dil Ko Chu Jane Vali Tasveer 💖"},
+      {src: "images/date4.jpg", caption: "🌙 Meri Raton Ke Sukoon Bhare Pal 💕"},
+      {src: "images/date5.jpg", caption: "💃 Tumhari Khubsurat Adao Ne Mujhe Fida Kiya ❤️"},
+      {src: "images/date6.jpg", caption: "🌹 Iss Tasveer Me Apke Sath Khade Hone Ka Dream ✨"}
+    ];
+    let futureIndex = 0;
+    function showFutureImage(index) {
+      document.getElementById("futureSlide").src = futureImages[index].src;
+      document.getElementById("futureCaption").innerHTML = futureImages[index].caption;
+    }
+    function nextFuture() { if(futureIndex<futureImages.length-1){ futureIndex++; showFutureImage(futureIndex);} else showSection("review"); }
+    function prevFuture() { if(futureIndex>0){ futureIndex--; showFutureImage(futureIndex);} else showSection("memories"); }
+
+    // Review Submit
+    async function submitReview() {
+      const text = document.getElementById("reviewText").value.trim();
+      if(!text){ alert("Kuch to likho meri jaan ❤️"); return; }
+      try {
+        await fetch(API_URL, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ text })
+        });
+        document.getElementById("reviewText").value="";
+        showSection('greeting');
+      } catch(e){
+        alert("Server error. Baad me try karo.");
+        console.error(e);
+      }
+    }
+
+    // Admin Load Reviews
+    async function loadReviews() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if(data && data.length>0){
+          document.getElementById("adminReview").innerHTML =
+            data.map(r=>`<p><b>💌</b> ${r.text}</p>`).join("");
+        } else {
+          document.getElementById("adminReview").innerHTML="<p>Koi review nahi mila 😢</p>";
+        }
+      } catch(e){
+        document.getElementById("adminReview").innerHTML="<p>Error loading reviews ⚠️</p>";
+        console.error(e);
+      }
+    }
+
+    // Fullscreen Functions
+    function openFullscreen(img) {
+      const modal = document.getElementById("imageModal");
+      document.getElementById("fullImage").src=img.src;
+      document.getElementById("captionText").innerHTML=img.alt||"";
+      modal.style.display="block";
+    }
+    function closeFullscreen() { document.getElementById("imageModal").style.display="none"; }
+
+    // On Load
+    window.onload = ()=>{
+      showImage(currentIndex);
+      showFutureImage(futureIndex);
+    }
+  </script>
+</body>
+</html>
